@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCannedPolicy;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,6 +42,7 @@ public class LessonServiceImpl implements LessonService {
     private final AuthHelper authHelper;
     private final UserLessonStatusRepository userLessonStatusRepository;
     private final DeleteService deleteService;
+    private final com.team.updevic001.services.impl.CloudFrontCookieService cloudFrontCookieService;
 
 
     @Override
@@ -98,19 +100,37 @@ public class LessonServiceImpl implements LessonService {
         return lessons.isEmpty() ? List.of() : lessonMapper.toShortLesson(lessons);
     }
 
-    public ResponseLessonDto getFullLessonByLessonId(String lessonId) {
+    public ResponseLessonDto getFullLessonByLessonId(String lessonId) throws Exception {
         User authenticatedUser = authHelper.getAuthenticatedUser();
         Lesson lesson = findLessonById(lessonId);
-        lesson.setVideoUrl(fileLoadService.getFileUrlWithEncode(lesson.getVideoKey()));
+
+        // User icazəsi yoxlanır
         boolean exists = userCourseFeeRepository.existsUserCourseFeeByCourseAndUser(lesson.getCourse(), authenticatedUser);
-        if (exists || lessonRepository.existsLessonByTeacherAndLesson(teacherServiceImpl.getAuthenticatedTeacher(), lesson)) {
-            markLessonAsWatched(authenticatedUser, lesson);
-            //   List<Comment> comments = commentRepository.findCommentByLessonId(lessonId);
-            return lessonMapper.toDto(lesson);
-        } else {
+        boolean isTeacher = lessonRepository.existsLessonByTeacherAndLesson(teacherServiceImpl.getAuthenticatedTeacher(), lesson);
+
+        if (!exists && !isTeacher) {
             throw new IllegalArgumentException("ACCESS_DENIED");
         }
+
+        // Dərsi izlənmiş kimi qeyd et
+        markLessonAsWatched(authenticatedUser, lesson);
+
+        // CloudFront resource path (S3 key ilə eyni ola bilər)
+        String resourcePath = lesson.getVideoKey(); // məsələn: "videos/lesson1.mp4"
+
+        // Signed cookies yarat
+        CookiesForCannedPolicy cookies = cloudFrontCookieService.generateSignedCookies(resourcePath, 3600); // 1 saat
+
+        // DTO yarat
+        ResponseLessonDto dto = lessonMapper.toDto(lesson);
+        dto.setVideoUrl("https://d32vmhzz9hmwha.cloudfront.net/" + resourcePath);
+        dto.setCloudFrontPolicy(cookies.policy());
+        dto.setCloudFrontSignature(cookies.signature());
+        dto.setCloudFrontKeyPairId(cookies.keyPairId());
+
+        return dto;
     }
+
 
     @Override
     @Transactional

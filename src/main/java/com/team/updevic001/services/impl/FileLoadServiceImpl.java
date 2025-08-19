@@ -52,7 +52,7 @@ public class FileLoadServiceImpl implements FileLoadService {
                 .key(key)
                 .build();
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(30))
+                .signatureDuration(Duration.ofMinutes(2))
                 .getObjectRequest(getObjectRequest)
                 .build();
         PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(presignRequest);
