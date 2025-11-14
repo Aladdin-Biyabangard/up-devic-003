@@ -8,7 +8,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
-public class MailConfig {
+public class MailPropertiesConfig {
 
     @Bean
     public JavaMailSender javaMailSender() {
@@ -23,17 +23,4 @@ public class MailConfig {
         props.put("mail.smtp.starttls.enable", true);
         return mailSender;
     }
-
-    //    @Bean
-//    public Gmail gmailService() throws Exception {
-//        NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-//        GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-//
-//        Credential credential = GoogleAuthorizeUtil.getCredentials(httpTransport);
-//        // burda sənin helper class (GoogleAuthorizeUtil) olacaq ki, OAuth2 credential.json faylından oxuyacaq
-//
-//        return new Gmail.Builder(httpTransport, jsonFactory, credential)
-//                .setApplicationName("Updevic Online Course")
-//                .build();
-//    }
 }

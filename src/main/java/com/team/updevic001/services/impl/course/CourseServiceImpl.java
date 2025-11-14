@@ -68,8 +68,8 @@ public class CourseServiceImpl implements CourseService {
     private final DeleteService deleteService;
     private final UserCourseFeeRepository userCourseFeeRepository;
     private final TeacherService teacherService;
-    private final BigDecimal percentage = BigDecimal.valueOf(5);
     private final NotificationService notificationService;
+    private final BigDecimal percentage = BigDecimal.valueOf(5);
     private static final String COURSE_LINK = "https://up-devic-001.lovable.app/courses/";
 
     @Override
