@@ -6,7 +6,6 @@ import com.team.updevic001.model.dtos.request.EmailDraftRequest;
 import com.team.updevic001.model.dtos.response.notification.EmailDraftResponse;
 import com.team.updevic001.model.enums.EmailStatus;
 import com.team.updevic001.services.impl.notification.EmailDraftService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +44,7 @@ public class EmailDraftController {
     public CustomPage<EmailDraftResponse> getDrafts(
             @RequestParam(required = false) String subject,
             @RequestParam(required = false) EmailStatus status,
-            @Valid CustomPageRequest pageRequest) {
-
+            CustomPageRequest pageRequest) {
 
         return emailDraftService.getDrafts(pageRequest, subject, status);
     }

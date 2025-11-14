@@ -67,7 +67,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .firstName(firstName)
                     .lastName(lastName)
                     .status(ACTIVE)
-                    .roles(List.of(role)) // <- birbaşa burada əlavə et
+                    .roles(List.of(role))
                     .build();
 
             User saved = userRepository.save(newUser);
